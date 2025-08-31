@@ -69,6 +69,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Background scanning function
   async function scanInBackground(scanId: string, scanData: { url: string; scanTypes: string[] }) {
     try {
+      console.log(`Starting scan for ${scanData.url} with types:`, scanData.scanTypes);
+      
       // Update scan status to scanning
       await storage.updateScan(scanId, { 
         status: "scanning", 
@@ -76,7 +78,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Perform the actual scan
+      console.log("Calling scanner.scanWebsite...");
       const result = await scanner.scanWebsite(scanData);
+      console.log("Scan completed, vulnerabilities found:", result.vulnerabilities.length);
 
       // Update progress
       await storage.updateScan(scanId, { 
@@ -96,8 +100,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedAt: new Date()
       });
 
+      console.log(`Scan ${scanId} completed successfully`);
+
     } catch (error) {
       console.error("Background scan error:", error);
+      console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
       await storage.updateScan(scanId, { 
         status: "failed", 
         progress: 0 
