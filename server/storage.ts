@@ -48,7 +48,10 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const scan: Scan = {
       id,
-      url: insertScan.url,
+      url: insertScan.url || null,
+      fileName: insertScan.fileName || null,
+      fileContent: insertScan.fileContent || null,
+      scanType: insertScan.scanType || "url",
       scanTypes: insertScan.scanTypes,
       status: "pending",
       progress: 0,

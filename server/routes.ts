@@ -67,9 +67,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Background scanning function
-  async function scanInBackground(scanId: string, scanData: { url: string; scanTypes: string[] }) {
+  async function scanInBackground(scanId: string, scanData: { url?: string; fileName?: string; fileContent?: string; scanType: string; scanTypes: string[] }) {
     try {
-      console.log(`Starting scan for ${scanData.url} with types:`, scanData.scanTypes);
+      const target = scanData.scanType === "file" ? scanData.fileName : scanData.url;
+      console.log(`Starting ${scanData.scanType} scan for ${target} with types:`, scanData.scanTypes);
       
       // Update scan status to scanning
       await storage.updateScan(scanId, { 
@@ -78,8 +79,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Perform the actual scan
-      console.log("Calling scanner.scanWebsite...");
-      const result = await scanner.scanWebsite(scanData);
+      console.log("Calling scanner...");
+      let result;
+      if (scanData.scanType === "file" && scanData.fileName && scanData.fileContent) {
+        result = await scanner.scanFileContent({
+          fileName: scanData.fileName,
+          content: scanData.fileContent,
+          scanTypes: scanData.scanTypes
+        });
+      } else if (scanData.scanType === "url" && scanData.url) {
+        result = await scanner.scanWebsite({
+          url: scanData.url,
+          scanTypes: scanData.scanTypes
+        });
+      } else {
+        throw new Error("Invalid scan data: missing required fields");
+      }
       console.log("Scan completed, vulnerabilities found:", result.vulnerabilities.length);
 
       // Update progress

@@ -155,14 +155,27 @@ export default function ScanResults({ scan, onNewScan }: ScanResultsProps) {
           </div>
 
           <div className="text-sm text-muted-foreground">
-            <span data-testid="text-scanned-files">
-              {scan.metadata?.scannedFiles || 0} JavaScript files
-            </span>{" "}
-            and{" "}
-            <span data-testid="text-scanned-lines">
-              {scan.metadata?.scannedLines || 0} lines of code
-            </span>{" "}
-            analyzed
+            {scan.scanType === "file" ? (
+              <>
+                File: <span className="font-medium">{scan.fileName}</span> with{" "}
+                <span data-testid="text-scanned-lines">
+                  {scan.metadata?.scannedLines || 0} lines of code
+                </span>{" "}
+                analyzed
+              </>
+            ) : (
+              <>
+                <span data-testid="text-scanned-files">
+                  {scan.metadata?.scannedFiles || 0} JavaScript files
+                </span>{" "}
+                and{" "}
+                <span data-testid="text-scanned-lines">
+                  {scan.metadata?.scannedLines || 0} lines of code
+                </span>{" "}
+                analyzed from{" "}
+                <span className="font-medium">{scan.url}</span>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

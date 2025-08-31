@@ -7,6 +7,12 @@ export interface ScanOptions {
   scanTypes: string[];
 }
 
+export interface FileScanOptions {
+  fileName: string;
+  content: string;
+  scanTypes: string[];
+}
+
 export interface ScanResult {
   vulnerabilities: InsertVulnerability[];
   metadata: {
@@ -18,6 +24,35 @@ export interface ScanResult {
 
 export class VulnerabilityScanner {
   private baseUrl: string = '';
+
+  async scanFileContent(options: FileScanOptions): Promise<ScanResult> {
+    try {
+      // Create a script object for the file content
+      const script = {
+        file: options.fileName,
+        content: options.content,
+        lineOffset: 0,
+      };
+
+      // Scan for vulnerabilities
+      const vulnerabilities = this.scanJavaScriptCode(script, options.scanTypes);
+
+      // Calculate metadata
+      const metadata = {
+        scannedFiles: 1,
+        scannedLines: options.content.split('\n').length,
+        totalFiles: 1,
+      };
+
+      return {
+        vulnerabilities,
+        metadata,
+      };
+    } catch (error) {
+      console.error('File scan error:', error);
+      throw new Error(`File scan failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 
   async scanWebsite(options: ScanOptions): Promise<ScanResult> {
     this.baseUrl = new URL(options.url).origin;

@@ -11,7 +11,10 @@ export const users = pgTable("users", {
 
 export const scans = pgTable("scans", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  url: text("url").notNull(),
+  url: text("url"),
+  fileName: text("file_name"),
+  fileContent: text("file_content"),
+  scanType: text("scan_type").notNull().default("url"), // url, file
   status: text("status").notNull().default("pending"), // pending, scanning, completed, failed
   progress: integer("progress").default(0),
   startedAt: timestamp("started_at").defaultNow(),
@@ -42,10 +45,28 @@ export const vulnerabilities = pgTable("vulnerabilities", {
 
 export const insertScanSchema = createInsertSchema(scans).pick({
   url: true,
+  fileName: true,
+  fileContent: true,
+  scanType: true,
   scanTypes: true,
 }).extend({
+  url: z.string().optional(),
+  fileName: z.string().optional(),
+  fileContent: z.string().optional(),
+  scanType: z.enum(["url", "file"]).default("url"),
   scanTypes: z.array(z.string()).min(1, "At least one scan type is required"),
-});
+}).refine(
+  (data) => {
+    if (data.scanType === "url") {
+      return !!data.url;
+    } else {
+      return !!data.fileName && !!data.fileContent;
+    }
+  },
+  {
+    message: "URL is required for URL scans, fileName and fileContent are required for file scans",
+  }
+);
 
 export const insertVulnerabilitySchema = createInsertSchema(vulnerabilities).omit({
   id: true,
