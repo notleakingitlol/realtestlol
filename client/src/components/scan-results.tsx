@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Download, ShieldCheck, RotateCcw } from "lucide-react";
+import { Download, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import VulnerabilityCard from "./vulnerability-card";
 import { type Scan, type Vulnerability } from "@shared/schema";
+import { useState, useEffect } from "react";
 
 interface ScanResultsProps {
   scan: Scan;
@@ -11,9 +12,59 @@ interface ScanResultsProps {
 }
 
 export default function ScanResults({ scan, onNewScan }: ScanResultsProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasAutoDownloaded, setHasAutoDownloaded] = useState(false);
+  const itemsPerPage = 10;
+
   const { data: vulnerabilities = [], isLoading } = useQuery<Vulnerability[]>({
     queryKey: ["/api/scans", scan.id, "vulnerabilities"],
   });
+
+  // Auto-download when scan completes and results are loaded
+  useEffect(() => {
+    if (!isLoading && vulnerabilities.length > 0 && scan.status === "completed" && !hasAutoDownloaded) {
+      handleExportReport();
+      setHasAutoDownloaded(true);
+    }
+  }, [isLoading, vulnerabilities.length, scan.status, hasAutoDownloaded]);
+
+  const handleExportReport = () => {
+    const reportData = {
+      scan: {
+        id: scan.id,
+        url: scan.url,
+        completedAt: scan.completedAt,
+        metadata: scan.metadata
+      },
+      summary: {
+        totalVulnerabilities: vulnerabilities.length,
+        severityCounts: getSeverityCounts()
+      },
+      vulnerabilities: vulnerabilities.map(vuln => ({
+        title: vuln.title,
+        description: vuln.description,
+        severity: vuln.severity,
+        type: vuln.type,
+        file: vuln.file,
+        line: vuln.line,
+        vulnerableCode: vuln.vulnerableCode,
+        attackVector: vuln.attackVector,
+        exploitationScenario: vuln.exploitationScenario,
+        recommendedFix: vuln.recommendedFix
+      }))
+    };
+
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vulnerability-report-${scan.id}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const getSeverityCounts = () => {
     const counts = { critical: 0, high: 0, medium: 0, low: 0 };
@@ -25,6 +76,12 @@ export default function ScanResults({ scan, onNewScan }: ScanResultsProps) {
     });
     return counts;
   };
+
+  // Pagination logic
+  const totalPages = Math.ceil(vulnerabilities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentVulnerabilities = vulnerabilities.slice(startIndex, endIndex);
 
   const severityCounts = getSeverityCounts();
   const totalVulns = vulnerabilities.length;
@@ -59,7 +116,7 @@ export default function ScanResults({ scan, onNewScan }: ScanResultsProps) {
               <span className="text-sm text-muted-foreground" data-testid="text-scan-date">
                 Scanned {scan.completedAt ? new Date(scan.completedAt).toLocaleString() : 'recently'}
               </span>
-              <Button variant="outline" size="sm" data-testid="button-export">
+              <Button variant="outline" size="sm" onClick={handleExportReport} data-testid="button-export">
                 <Download className="mr-2 h-4 w-4" />
                 Export Report
               </Button>
@@ -113,9 +170,68 @@ export default function ScanResults({ scan, onNewScan }: ScanResultsProps) {
       {/* Vulnerabilities */}
       {totalVulns > 0 ? (
         <div className="space-y-4">
-          {vulnerabilities.map((vulnerability) => (
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-foreground">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalVulns)} of {totalVulns} vulnerabilities
+            </p>
+            {totalPages > 1 && (
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  data-testid="button-prev-page"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  data-testid="button-next-page"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          {currentVulnerabilities.map((vulnerability) => (
             <VulnerabilityCard key={vulnerability.id} vulnerability={vulnerability} />
           ))}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  data-testid="button-prev-page-bottom"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <span className="text-sm text-muted-foreground px-4">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  data-testid="button-next-page-bottom"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <Card>
