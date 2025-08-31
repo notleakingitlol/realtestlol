@@ -73,11 +73,13 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
   });
 
   const onSubmit = (data: FormData) => {
+    console.log("Form data:", data); // Debug log
     const scanTypes = [
       ...(data.sqlInjection ? ['sql'] : []),
       ...(data.jsInjection ? ['js'] : []),
       ...(data.httpSecurity ? ['http'] : []),
     ];
+    console.log("Scan types:", scanTypes); // Debug log
 
     if (scanTypes.length === 0) {
       toast({
