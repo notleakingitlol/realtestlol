@@ -47,8 +47,9 @@ export class MemStorage implements IStorage {
   async createScan(insertScan: InsertScan): Promise<Scan> {
     const id = randomUUID();
     const scan: Scan = {
-      ...insertScan,
       id,
+      url: insertScan.url,
+      scanTypes: insertScan.scanTypes,
       status: "pending",
       progress: 0,
       startedAt: new Date(),
@@ -81,8 +82,18 @@ export class MemStorage implements IStorage {
   async createVulnerability(insertVulnerability: InsertVulnerability): Promise<Vulnerability> {
     const id = randomUUID();
     const vulnerability: Vulnerability = {
-      ...insertVulnerability,
       id,
+      scanId: insertVulnerability.scanId,
+      title: insertVulnerability.title,
+      description: insertVulnerability.description,
+      severity: insertVulnerability.severity,
+      type: insertVulnerability.type,
+      file: insertVulnerability.file,
+      line: insertVulnerability.line ?? null,
+      vulnerableCode: insertVulnerability.vulnerableCode ?? null,
+      attackVector: insertVulnerability.attackVector ?? null,
+      exploitationScenario: insertVulnerability.exploitationScenario ?? null,
+      recommendedFix: insertVulnerability.recommendedFix ?? null,
       detectedAt: new Date(),
     };
     this.vulnerabilities.set(id, vulnerability);

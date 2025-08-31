@@ -43,11 +43,19 @@ export const vulnerabilities = pgTable("vulnerabilities", {
 export const insertScanSchema = createInsertSchema(scans).pick({
   url: true,
   scanTypes: true,
+}).extend({
+  scanTypes: z.array(z.string()).min(1, "At least one scan type is required"),
 });
 
 export const insertVulnerabilitySchema = createInsertSchema(vulnerabilities).omit({
   id: true,
   detectedAt: true,
+}).extend({
+  line: z.number().nullable().optional(),
+  vulnerableCode: z.string().nullable().optional(),
+  attackVector: z.string().nullable().optional(),
+  exploitationScenario: z.array(z.string()).nullable().optional(),
+  recommendedFix: z.string().nullable().optional(),
 });
 
 export type InsertScan = z.infer<typeof insertScanSchema>;

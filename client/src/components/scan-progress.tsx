@@ -68,51 +68,51 @@ export default function ScanProgress({ scanId, onScanComplete }: ScanProgressPro
             <h3 className="text-lg font-semibold text-foreground">Scanning in Progress</h3>
             <div className="flex items-center space-x-2 text-accent">
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm" data-testid="text-progress">{scan.progress}%</span>
+              <span className="text-sm" data-testid="text-progress">{scan.progress ?? 0}%</span>
             </div>
           </div>
           
-          <Progress value={scan.progress} className="mb-4" />
+          <Progress value={scan.progress ?? 0} className="mb-4" />
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center space-x-2">
-              {scan.progress >= 30 ? (
+              {(scan.progress ?? 0) >= 30 ? (
                 <CheckCircle className="h-4 w-4 text-accent" />
               ) : (
                 <Clock className="h-4 w-4 text-muted-foreground" />
               )}
-              <span className={scan.progress >= 30 ? "text-muted-foreground" : "text-foreground"}>
+              <span className={(scan.progress ?? 0) >= 30 ? "text-muted-foreground" : "text-foreground"}>
                 HTML Analysis Complete
               </span>
             </div>
             
             <div className="flex items-center space-x-2">
-              {scan.progress >= 70 ? (
+              {(scan.progress ?? 0) >= 70 ? (
                 <CheckCircle className="h-4 w-4 text-accent" />
-              ) : scan.progress >= 30 ? (
+              ) : (scan.progress ?? 0) >= 30 ? (
                 <Loader2 className="h-4 w-4 animate-spin text-accent" />
               ) : (
                 <Clock className="h-4 w-4 text-muted-foreground" />
               )}
               <span className={
-                scan.progress >= 70 ? "text-muted-foreground" : 
-                scan.progress >= 30 ? "text-foreground" : "text-muted-foreground"
+                (scan.progress ?? 0) >= 70 ? "text-muted-foreground" : 
+                (scan.progress ?? 0) >= 30 ? "text-foreground" : "text-muted-foreground"
               }>
                 Analyzing JavaScript Files
               </span>
             </div>
             
             <div className="flex items-center space-x-2">
-              {scan.progress >= 100 ? (
+              {(scan.progress ?? 0) >= 100 ? (
                 <CheckCircle className="h-4 w-4 text-accent" />
-              ) : scan.progress >= 70 ? (
+              ) : (scan.progress ?? 0) >= 70 ? (
                 <Loader2 className="h-4 w-4 animate-spin text-accent" />
               ) : (
                 <Clock className="h-4 w-4 text-muted-foreground" />
               )}
               <span className={
-                scan.progress >= 100 ? "text-muted-foreground" : 
-                scan.progress >= 70 ? "text-foreground" : "text-muted-foreground"
+                (scan.progress ?? 0) >= 100 ? "text-muted-foreground" : 
+                (scan.progress ?? 0) >= 70 ? "text-foreground" : "text-muted-foreground"
               }>
                 Security Pattern Matching
               </span>

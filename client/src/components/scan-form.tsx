@@ -13,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertScanSchema, type Scan } from "@shared/schema";
 
-const formSchema = insertScanSchema.extend({
+const formSchema = z.object({
+  url: z.string().url("Please enter a valid URL"),
   sqlInjection: z.boolean().default(true),
   jsInjection: z.boolean().default(true),
   httpSecurity: z.boolean().default(true),
@@ -26,7 +27,12 @@ const formSchema = insertScanSchema.extend({
   ],
 }));
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = {
+  url: string;
+  sqlInjection: boolean;
+  jsInjection: boolean;
+  httpSecurity: boolean;
+};
 
 interface ScanFormProps {
   onScanStarted: (scan: Scan) => void;
@@ -67,7 +73,13 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
   });
 
   const onSubmit = (data: FormData) => {
-    if (data.scanTypes.length === 0) {
+    const scanTypes = [
+      ...(data.sqlInjection ? ['sql'] : []),
+      ...(data.jsInjection ? ['js'] : []),
+      ...(data.httpSecurity ? ['http'] : []),
+    ];
+
+    if (scanTypes.length === 0) {
       toast({
         title: "Invalid Configuration",
         description: "Please select at least one vulnerability type to scan for.",
@@ -78,7 +90,7 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
 
     scanMutation.mutate({
       url: data.url,
-      scanTypes: data.scanTypes,
+      scanTypes,
     });
   };
 
