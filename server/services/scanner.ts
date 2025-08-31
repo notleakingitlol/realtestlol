@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { vulnerabilityPatterns } from './vulnerability-patterns.js';
+import { vulnerabilityPatterns } from './vulnerability-patterns';
 import { type InsertVulnerability } from '@shared/schema';
 
 export interface ScanOptions {
