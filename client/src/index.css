@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(224, 71%, 4%);
+  --foreground: hsl(213, 31%, 91%);
+  --card: hsl(224, 71%, 6%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --popover: hsl(224, 71%, 6%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --primary: hsl(210, 100%, 60%);
+  --primary-foreground: hsl(224, 71%, 4%);
+  --secondary: hsl(215, 28%, 17%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --muted: hsl(215, 28%, 12%);
+  --muted-foreground: hsl(217, 10%, 64%);
+  --accent: hsl(195, 100%, 65%);
+  --accent-foreground: hsl(224, 71%, 4%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 20%, 98%);
+  --border: hsl(215, 28%, 17%);
+  --input: hsl(215, 28%, 17%);
+  --ring: hsl(210, 100%, 60%);
+  --radius: 8px;
+  --critical: hsl(0, 84%, 60%);
+  --high: hsl(25, 95%, 53%);
+  --medium: hsl(48, 96%, 53%);
+  --low: hsl(142, 76%, 36%);
+  --info: hsl(210, 100%, 60%);
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, Monaco, monospace;
+}
+
+.dark {
+  --background: hsl(224, 71%, 4%);
+  --foreground: hsl(213, 31%, 91%);
+  --card: hsl(224, 71%, 6%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --popover: hsl(224, 71%, 6%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --primary: hsl(210, 100%, 60%);
+  --primary-foreground: hsl(224, 71%, 4%);
+  --secondary: hsl(215, 28%, 17%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --muted: hsl(215, 28%, 12%);
+  --muted-foreground: hsl(217, 10%, 64%);
+  --accent: hsl(195, 100%, 65%);
+  --accent-foreground: hsl(224, 71%, 4%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 20%, 98%);
+  --border: hsl(215, 28%, 17%);
+  --input: hsl(215, 28%, 17%);
+  --ring: hsl(210, 100%, 60%);
+  --critical: hsl(0, 84%, 60%);
+  --high: hsl(25, 95%, 53%);
+  --medium: hsl(48, 96%, 53%);
+  --low: hsl(142, 76%, 36%);
+  --info: hsl(210, 100%, 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  .code-block {
+    background: hsl(215, 28%, 8%);
+    border: 1px solid hsl(215, 28%, 17%);
+  }
+
+  .vulnerability-card {
+    background: hsl(224, 71%, 6%);
+    border: 1px solid hsl(215, 28%, 17%);
+    transition: all 0.2s ease;
+  }
+
+  .vulnerability-card:hover {
+    border-color: hsl(210, 100%, 60%);
+    box-shadow: 0 4px 20px hsl(210, 100%, 60%, 0.1);
+  }
+
+  .severity-critical {
+    background: hsl(0, 84%, 60%, 0.1);
+    border-color: hsl(0, 84%, 60%);
+    color: hsl(0, 84%, 70%);
+  }
+
+  .severity-high {
+    background: hsl(25, 95%, 53%, 0.1);
+    border-color: hsl(25, 95%, 53%);
+    color: hsl(25, 95%, 65%);
+  }
+
+  .severity-medium {
+    background: hsl(48, 96%, 53%, 0.1);
+    border-color: hsl(48, 96%, 53%);
+    color: hsl(48, 96%, 65%);
+  }
+
+  .severity-low {
+    background: hsl(142, 76%, 36%, 0.1);
+    border-color: hsl(142, 76%, 36%);
+    color: hsl(142, 76%, 50%);
+  }
+
+  .scan-progress {
+    background: linear-gradient(90deg, hsl(210, 100%, 60%), hsl(195, 100%, 65%));
+  }
+}
