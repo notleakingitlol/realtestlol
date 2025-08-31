@@ -44,6 +44,36 @@ npm start
 
 The application will be available at `http://localhost:5000`
 
+## Deployment
+
+### GitHub + Netlify Deployment
+
+1. **Push to GitHub:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin <your-github-repo-url>
+   git push -u origin main
+   ```
+
+2. **Deploy to Netlify:**
+   - Connect your GitHub repository to Netlify
+   - Set build command: `npm run build`
+   - Set publish directory: `dist/public`
+   - The app will auto-deploy on every push to main branch
+
+3. **Environment Variables (if using database):**
+   - In Netlify dashboard, go to Site Settings → Environment Variables
+   - Add `DATABASE_URL` if you want to use PostgreSQL instead of in-memory storage
+
+### Manual Netlify Deployment
+
+1. Run `npm run build`
+2. Drag and drop the `dist/public` folder to Netlify
+3. Your app will be live instantly!
+
 ## Usage
 
 ### Scanning Websites
