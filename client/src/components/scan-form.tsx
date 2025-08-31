@@ -15,23 +15,10 @@ import { insertScanSchema, type Scan } from "@shared/schema";
 
 const formSchema = z.object({
   url: z.string().url("Please enter a valid URL"),
-  sqlInjection: z.boolean().default(true),
-  jsInjection: z.boolean().default(true),
-  httpSecurity: z.boolean().default(true),
-}).transform((data) => ({
-  url: data.url,
-  scanTypes: [
-    ...(data.sqlInjection ? ['sql'] : []),
-    ...(data.jsInjection ? ['js'] : []),
-    ...(data.httpSecurity ? ['http'] : []),
-  ],
-}));
+});
 
 type FormData = {
   url: string;
-  sqlInjection: boolean;
-  jsInjection: boolean;
-  httpSecurity: boolean;
 };
 
 interface ScanFormProps {
@@ -45,9 +32,6 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       url: "",
-      sqlInjection: true,
-      jsInjection: true,
-      httpSecurity: true,
     },
   });
 
@@ -73,26 +57,9 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
   });
 
   const onSubmit = (data: FormData) => {
-    console.log("Form data:", data); // Debug log
-    const scanTypes = [
-      ...(data.sqlInjection ? ['sql'] : []),
-      ...(data.jsInjection ? ['js'] : []),
-      ...(data.httpSecurity ? ['http'] : []),
-    ];
-    console.log("Scan types:", scanTypes); // Debug log
-
-    if (scanTypes.length === 0) {
-      toast({
-        title: "Invalid Configuration",
-        description: "Please select at least one vulnerability type to scan for.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     scanMutation.mutate({
       url: data.url,
-      scanTypes,
+      scanTypes: ['sql', 'js', 'http'], // Always scan all types
     });
   };
 
@@ -124,57 +91,8 @@ export default function ScanForm({ onScanStarted }: ScanFormProps) {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="sqlInjection"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          data-testid="checkbox-sql"
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm">SQL Injection</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="jsInjection"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          data-testid="checkbox-js"
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm">JS Injection</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="httpSecurity"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          data-testid="checkbox-http"
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm">HTTP Security</FormLabel>
-                    </FormItem>
-                  )}
-                />
+              <div className="text-sm text-muted-foreground mb-4">
+                This scanner will check for SQL injection, JavaScript injection, and HTTP security vulnerabilities.
               </div>
 
               <Button
